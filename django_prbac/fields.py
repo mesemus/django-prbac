@@ -107,6 +107,8 @@ class StringSetField(StringListField):
         return self.get_prep_value(value)
 
     def get_prep_value(self, value):
+        if not value:
+            value = set()
         if not self.is_string_set(value):
             raise ValueError('Invalid value %r for StringSetField' % value)
         else:

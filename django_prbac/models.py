@@ -184,6 +184,9 @@ class Role(ValidatingModel, models.Model):
     def __unicode__(self):
         return '%s (%s)' % (self.name, self.slug)
 
+    def __str__(self):
+        return '%s (%s)' % (self.name, self.slug)
+
 
 class Grant(ValidatingModel, models.Model):
     """
