@@ -20,7 +20,7 @@ __all__ = [
     'Role',
     'Grant',
     'RoleInstance',
-    'UserRole',
+    # 'UserRole',
 ]
 
 class ValidatingModel(object):
@@ -237,30 +237,32 @@ class Grant(ValidatingModel, models.Model):
     def __repr__(self):
         return 'Grant(from_role=%r, to_role=%r, assignment=%r)' % (self.from_role, self.to_role, self.assignment)
 
-
-class UserRole(ValidatingModel, models.Model):
-    """
-    A link between a django.contrib.auth.models.User and
-    a django_prbac.models.Role. They are kept to
-    one-to-one fields to make their use extremely simple:
-
-    request.user.prbac_role.has_privilege(...)
-    """
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='prbac_role', on_delete=models.CASCADE)
-    role = models.OneToOneField(Role, related_name='user_role', on_delete=models.CASCADE)
-
-    class Meta:
-        app_label = 'django_prbac'
-
-    def has_privilege(self, privilege):
-        return self.role.has_privilege(privilege)
-
-    def __eq__(self, other):
-        return self.user == other.user and self.role == other.role
-
-    def __repr__(self):
-        return 'UserRole(user=%r, role=%r)' % (self.user, self.role)
+#
+# This class has problems when users are not kept in the same database as Role/Grant, so removed for now
+#
+# class UserRole(ValidatingModel, models.Model):
+#     """
+#     A link between a django.contrib.auth.models.User and
+#     a django_prbac.models.Role. They are kept to
+#     one-to-one fields to make their use extremely simple:
+#
+#     request.user.prbac_role.has_privilege(...)
+#     """
+#
+#     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='prbac_role', on_delete=models.CASCADE)
+#     role = models.OneToOneField(Role, related_name='user_role', on_delete=models.CASCADE)
+#
+#     class Meta:
+#         app_label = 'django_prbac'
+#
+#     def has_privilege(self, privilege):
+#         return self.role.has_privilege(privilege)
+#
+#     def __eq__(self, other):
+#         return self.user == other.user and self.role == other.role
+#
+#     def __repr__(self):
+#         return 'UserRole(user=%r, role=%r)' % (self.user, self.role)
 
 
 class RoleInstance(object):
