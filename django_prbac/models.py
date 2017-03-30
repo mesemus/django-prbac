@@ -10,7 +10,7 @@ from django.db import models
 from django.conf import settings
 
 # External Library imports
-import jsonfield
+from django.contrib.postgres.fields import JSONField
 
 # Local imports
 from django_prbac.fields import StringListField, StringSetField
@@ -209,7 +209,7 @@ class Grant(ValidatingModel, models.Model):
         on_delete=models.CASCADE,
     )
 
-    assignment = jsonfield.JSONField(
+    assignment = JSONField(
         help_text='Assignment from parameters (strings) to values (any JSON-compatible value)',
         blank=True,
         default=dict,
