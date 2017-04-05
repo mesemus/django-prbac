@@ -164,12 +164,12 @@ class Role(ValidatingModel, models.Model):
             self._default_instance = weakref.ref(value)
         return value
 
-    def has_privilege(self, privilege):
+    def has_privilege(self, privilege, ignore_privilege_unassigned_parameters=False):
         """
         Shortcut for checking privileges easily for roles with no params (aka probably users)
         """
         role = self.get_cached_role()
-        return role.instantiate({}).has_privilege(privilege)
+        return role.instantiate({}).has_privilege(privilege, ignore_privilege_unassigned_parameters)
 
     @property
     def assignment(self):
@@ -296,16 +296,27 @@ class RoleInstance(object):
         # this seems like a bug (wrong arguments). is this method ever called?
         return RoleInstance(composed_assignment)
 
-    def has_privilege(self, privilege):
+    def has_privilege(self, privilege, ignore_privilege_unassigned_parameters=False):
         """
         True if this instantiated role is allowed the privilege passed in,
         (which is itself an RoleInstance)
+        
+        :param ignore_privilege_unassigned_parameters
+            if set to true, if self.assignment contains a name:value pair and the privilege does not contain it
+            than the name will be ignored from the comparison
         """
 
         if self == privilege:
             return True
 
-        return any(p.has_privilege(privilege)
+        if ignore_privilege_unassigned_parameters and self.slug == privilege.slug:
+            for k, v in privilege.assignment.items():
+                if v and self.assignment.get(k) != v:
+                    return False
+            # all values from the privilege were in my assignment, so return True
+            return True
+
+        return any(p.has_privilege(privilege, ignore_privilege_unassigned_parameters)
                    for p in self.role.get_privileges(self.assignment))
 
     def __eq__(self, other):
